@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                 String          @id @default(cuid())
+  name               String
+  email              String          @unique
+  passwordHash       String
+  role               String          @default("EMPLOYEE") // "ADMIN" or "EMPLOYEE"
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  
+  assignedLocationId String?
+  assignedLocation   Location?       @relation(fields: [assignedLocationId], references: [id])
+  
+  attendanceLogs     AttendanceLog[]
+}
+
+model Location {
+  id        String   @id @default(cuid())
+  name      String
+  latitude  Float
+  longitude Float
+  radius    Float    // Allowed radius in meters
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+  logs      AttendanceLog[]
+}
+
+model AttendanceLog {
+  id             String    @id @default(cuid())
+  userId         String
+  locationId     String
+  checkInTime    DateTime  @default(now())
+  checkOutTime   DateTime?
+  distanceMeters Float
+  status         String    // "SUCCESS", "OUT_OF_BOUNDS"
+  
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location       Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+}
