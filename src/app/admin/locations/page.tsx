@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { Plus, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
+import AddLocationButton from "./AddLocationButton";
 
 export default async function LocationsPage() {
   const locations = await prisma.location.findMany({
@@ -13,10 +14,7 @@ export default async function LocationsPage() {
           <h1 className="text-3xl font-bold text-slate-800">Locations</h1>
           <p className="text-slate-500 mt-1">Manage company office locations and geofences.</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-sm font-medium transition-colors">
-          <Plus className="w-4 h-4" />
-          Add Location
-        </button>
+        <AddLocationButton />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
