@@ -3,9 +3,10 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import AttendanceCard from "@/components/AttendanceCard";
-import { LogOut, User as UserIcon, CalendarDays, ArrowRight } from "lucide-react";
+import { CalendarDays, ArrowRight } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -39,8 +40,8 @@ export default async function DashboardPage() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 sticky top-0 z-10">
         <div className="flex items-center gap-3 w-full sm:w-auto">
-          <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
-            <UserIcon className="text-primary-600 w-5 h-5" />
+          <div className="w-10 h-10 flex items-center justify-center shrink-0">
+            <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain" />
           </div>
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-slate-800 truncate">{session.user.name}</h2>

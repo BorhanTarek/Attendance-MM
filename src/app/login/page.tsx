@@ -3,8 +3,9 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { MapPin, Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, Mail, ArrowRight, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,27 +40,27 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute -top-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-primary-200/40 blur-3xl" />
-        <div className="absolute -bottom-[30%] -left-[10%] w-[70%] h-[70%] rounded-full bg-blue-300/30 blur-3xl" />
+        <div className="absolute -top-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-primary-100/40 blur-3xl" />
+        <div className="absolute -bottom-[30%] -left-[10%] w-[70%] h-[70%] rounded-full bg-slate-200/50 blur-3xl" />
       </div>
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="glass-panel w-full max-w-md p-8 rounded-2xl relative z-10"
+        className="bg-white border border-slate-100 shadow-xl w-full max-w-md p-8 rounded-2xl relative z-10"
       >
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-tr from-primary-600 to-blue-400 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30 mb-4">
-            <MapPin className="text-white w-8 h-8" />
+          <div className="mb-6 flex items-center justify-center">
+            <Image src="/logo.png" alt="RATP Dev Logo" width={90} height={90} className="object-contain" />
           </div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-800 to-slate-600">
-            GeoAttend
+          <h1 className="text-2xl font-bold text-slate-800 text-center">
+            Welcome to GeoAttend
           </h1>
-          <p className="text-slate-500 mt-2 text-center">
-            Sign in to check in to your location
+          <p className="text-slate-500 mt-2 text-center text-sm">
+            Sign in to access your dashboard
           </p>
         </div>
 
@@ -111,7 +112,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-primary-600 to-blue-500 hover:from-primary-700 hover:to-blue-600 text-white font-medium py-3 rounded-xl shadow-lg shadow-primary-500/25 transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed mt-2"
+            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-3 rounded-xl shadow-lg shadow-primary-600/20 transition-all flex items-center justify-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed mt-2"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />

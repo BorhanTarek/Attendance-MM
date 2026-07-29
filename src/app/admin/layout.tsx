@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
 import { ShieldCheck, MapPin, Users, ClipboardList, LayoutDashboard, CheckSquare, CalendarDays } from "lucide-react";
+import Image from "next/image";
 
 export default async function AdminLayout({
   children,
@@ -30,8 +31,8 @@ export default async function AdminLayout({
       {/* Sidebar */}
       <aside className="w-full md:w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col hidden md:flex">
         <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-          <div className="bg-primary-100 p-2 rounded-lg text-primary-600">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="flex items-center justify-center">
+            <Image src="/logo.png" alt="Logo" width={32} height={32} className="object-contain" />
           </div>
           <div>
             <h1 className="font-bold text-slate-800 tracking-tight">GeoAttend</h1>
@@ -66,7 +67,7 @@ export default async function AdminLayout({
         {/* Mobile Header */}
         <header className="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-6 h-6 text-primary-600" />
+            <Image src="/logo.png" alt="Logo" width={28} height={28} className="object-contain" />
             <h1 className="font-bold text-slate-800">Admin Portal</h1>
           </div>
           <LogoutButton />
