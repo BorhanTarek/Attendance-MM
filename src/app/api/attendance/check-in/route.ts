@@ -59,6 +59,8 @@ export async function POST(req: Request) {
     );
 
     const isWithinRadius = distance <= targetLocation.radius;
+    const userAgent = req.headers.get("user-agent");
+    const checkInDevice = parseDevice(userAgent);
 
     // Log the check-in regardless of success to keep track of out-of-bounds attempts
     await prisma.attendanceLog.create({
@@ -69,6 +71,7 @@ export async function POST(req: Request) {
         status: isWithinRadius ? "SUCCESS" : "OUT_OF_BOUNDS",
         checkInLat: latitude,
         checkInLng: longitude,
+        checkInDevice,
       }
     });
 
@@ -87,4 +90,18 @@ export async function POST(req: Request) {
     console.error("Check-in error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+function parseDevice(ua: string | null) {
+  if (!ua) return "Unknown";
+  const androidMatch = ua.match(/Android [^;]+; ([^)]+)\)/);
+  if (androidMatch) {
+    return `Android (${androidMatch[1].split(' Build')[0]})`;
+  }
+  if (/iPhone/i.test(ua)) return "iPhone";
+  if (/iPad/i.test(ua)) return "iPad";
+  if (/Windows NT/i.test(ua)) return "Windows PC";
+  if (/Macintosh/i.test(ua)) return "Mac";
+  if (/Linux/i.test(ua)) return "Linux";
+  return "Unknown Device";
 }

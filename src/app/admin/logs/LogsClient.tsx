@@ -125,6 +125,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                 <th className="px-4 py-3">Location</th>
                 <th className="px-4 py-3">Check In</th>
                 <th className="px-4 py-3">Check Out</th>
+                <th className="px-4 py-3">Device</th>
                 <th className="px-4 py-3">Duration</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Distance</th>
@@ -139,6 +140,12 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                   const hours = Math.floor(diffMins / 60);
                   const mins = diffMins % 60;
                   duration = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                }
+
+                // Determine what to show in Device column
+                let deviceDisplay = log.checkInDevice || "-";
+                if (log.checkOutDevice && log.checkOutDevice !== log.checkInDevice) {
+                  deviceDisplay = `In: ${log.checkInDevice} / Out: ${log.checkOutDevice}`;
                 }
 
                 return (
@@ -167,6 +174,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                         <span className="text-slate-400 italic">Active</span>
                       )}
                     </td>
+                    <td className="px-4 py-3 text-xs text-slate-500 max-w-[150px] truncate" title={deviceDisplay}>{deviceDisplay}</td>
                     <td className="px-4 py-3 font-medium text-slate-600">{duration}</td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -181,7 +189,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
               })}
               {filteredLogs.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
                     No attendance logs found matching your criteria.
                   </td>
                 </tr>

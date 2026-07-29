@@ -46,6 +46,8 @@ model AttendanceLog {
   checkInLng     Float?
   checkOutLat    Float?
   checkOutLng    Float?
+  checkInDevice  String?
+  checkOutDevice String?
   distanceMeters Float
   status         String    // "SUCCESS", "OUT_OF_BOUNDS"
   

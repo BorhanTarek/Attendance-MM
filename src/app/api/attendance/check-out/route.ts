@@ -38,12 +38,16 @@ export async function POST(req: Request) {
     }
 
     // Update the log with check-out time
+    const userAgent = req.headers.get("user-agent");
+    const checkOutDevice = parseDevice(userAgent);
+
     await prisma.attendanceLog.update({
       where: { id: latestLog.id },
       data: {
         checkOutTime: new Date(),
         checkOutLat: latitude,
         checkOutLng: longitude,
+        checkOutDevice,
       },
     });
 
@@ -56,4 +60,18 @@ export async function POST(req: Request) {
     console.error("Check-out error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+function parseDevice(ua: string | null) {
+  if (!ua) return "Unknown";
+  const androidMatch = ua.match(/Android [^;]+; ([^)]+)\)/);
+  if (androidMatch) {
+    return `Android (${androidMatch[1].split(' Build')[0]})`;
+  }
+  if (/iPhone/i.test(ua)) return "iPhone";
+  if (/iPad/i.test(ua)) return "iPad";
+  if (/Windows NT/i.test(ua)) return "Windows PC";
+  if (/Macintosh/i.test(ua)) return "Mac";
+  if (/Linux/i.test(ua)) return "Linux";
+  return "Unknown Device";
 }
