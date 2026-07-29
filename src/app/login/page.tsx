@@ -8,7 +8,7 @@ import { motion } from "framer-motion";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,12 +21,12 @@ export default function LoginPage() {
     try {
       const res = await signIn("credentials", {
         redirect: false,
-        email,
+        username,
         password,
       });
 
       if (res?.error) {
-        setError("Invalid email or password");
+        setError("Invalid username or password");
         setLoading(false);
       } else {
         router.push("/dashboard");
@@ -75,18 +75,18 @@ export default function LoginPage() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-slate-700">Email Address</label>
+            <label className="text-sm font-medium text-slate-700">Username</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Mail className="h-5 w-5 text-slate-400" />
               </div>
               <input
-                type="email"
+                type="text"
                 required
                 className="w-full pl-10 pr-4 py-2.5 bg-white/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                placeholder="you@company.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
             </div>
           </div>
@@ -125,8 +125,8 @@ export default function LoginPage() {
         </form>
         
         <div className="mt-8 text-center text-xs text-slate-400">
-          <p>Default Admin: admin@company.com / admin123</p>
-          <p>Default Employee: employee@company.com / employee123</p>
+          <p>Default Admin: System Admin / admin123</p>
+          <p>Default Employee: John Doe / employee123</p>
         </div>
       </motion.div>
     </div>

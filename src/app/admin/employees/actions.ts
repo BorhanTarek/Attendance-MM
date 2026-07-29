@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
 
 export async function createEmployee(formData: FormData) {
   const name = formData.get("name") as string;
@@ -13,13 +14,13 @@ export async function createEmployee(formData: FormData) {
     throw new Error("Missing required fields");
   }
 
-  // We are storing plaintext here purely for demonstration purposes in this project
-  // In a real app, you must hash this password (e.g., using bcrypt)
+  const passwordHash = await bcrypt.hash(password, 10);
+
   await prisma.user.create({
     data: {
       name,
       email,
-      passwordHash: password,
+      passwordHash,
       role: "EMPLOYEE",
       assignedLocationId: locationId === "ALL" ? null : locationId,
     },
@@ -45,7 +46,7 @@ export async function updateEmployee(id: string, formData: FormData) {
   };
 
   if (password && password.trim() !== "") {
-    data.passwordHash = password;
+    data.passwordHash = await bcrypt.hash(password, 10);
   }
 
   await prisma.user.update({
