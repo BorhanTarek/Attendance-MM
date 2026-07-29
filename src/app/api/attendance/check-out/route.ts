@@ -11,6 +11,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const body = await req.json().catch(() => ({}));
+    const latitude = typeof body.latitude === 'number' ? body.latitude : null;
+    const longitude = typeof body.longitude === 'number' ? body.longitude : null;
+
     // Find the latest successful check-in without a check-out time for today
     const startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
@@ -38,6 +42,8 @@ export async function POST(req: Request) {
       where: { id: latestLog.id },
       data: {
         checkOutTime: new Date(),
+        checkOutLat: latitude,
+        checkOutLng: longitude,
       },
     });
 

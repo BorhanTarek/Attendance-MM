@@ -21,22 +21,36 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
     }
 
     if (isActive) {
-      // Check-out doesn't strictly need location again in our logic, but we can call the checkout endpoint
-      try {
-        const res = await fetch('/api/attendance/check-out', { method: 'POST' });
-        const data = await res.json();
-        
-        if (res.ok) {
-          setStatus({ type: 'success', message: data.message });
-          setTimeout(() => { router.refresh(); }, 1500);
-        } else {
-          setStatus({ type: 'error', message: data.error });
-        }
-      } catch (err) {
-        setStatus({ type: 'error', message: 'Something went wrong.' });
-      } finally {
-        setLoading(false);
-      }
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          try {
+            const res = await fetch('/api/attendance/check-out', { 
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ latitude, longitude })
+            });
+            const data = await res.json();
+            
+            if (res.ok) {
+              setStatus({ type: 'success', message: data.message });
+              setTimeout(() => { router.refresh(); }, 1500);
+            } else {
+              setStatus({ type: 'error', message: data.error });
+            }
+          } catch (err) {
+            setStatus({ type: 'error', message: 'Something went wrong.' });
+          } finally {
+            setLoading(false);
+          }
+        },
+        (error) => {
+          setStatus({ type: 'error', message: 'Location access denied or unavailable. Please enable GPS.' });
+          setLoading(false);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+      );
     } else {
       // Check-in requires location
       navigator.geolocation.getCurrentPosition(

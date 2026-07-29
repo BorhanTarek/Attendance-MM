@@ -42,6 +42,10 @@ model AttendanceLog {
   locationId     String
   checkInTime    DateTime  @default(now())
   checkOutTime   DateTime?
+  checkInLat     Float?
+  checkInLng     Float?
+  checkOutLat    Float?
+  checkOutLng    Float?
   distanceMeters Float
   status         String    // "SUCCESS", "OUT_OF_BOUNDS"
   

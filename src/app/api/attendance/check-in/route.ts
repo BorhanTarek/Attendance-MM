@@ -67,6 +67,8 @@ export async function POST(req: Request) {
         locationId: targetLocation.id,
         distanceMeters: distance,
         status: isWithinRadius ? "SUCCESS" : "OUT_OF_BOUNDS",
+        checkInLat: latitude,
+        checkInLng: longitude,
       }
     });
 

@@ -31,7 +31,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
   });
 
   const exportCSV = () => {
-    const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Status", "Distance (m)"];
+    const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Status", "Distance (m)", "Check In Lat", "Check In Lng", "Check Out Lat", "Check Out Lng"];
     
     const csvContent = [
       headers.join(","),
@@ -46,7 +46,11 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
           checkIn,
           checkOut,
           log.status,
-          distance
+          distance,
+          log.checkInLat || "",
+          log.checkInLng || "",
+          log.checkOutLat || "",
+          log.checkOutLng || ""
         ].join(",");
       })
     ].join("\n");
@@ -120,7 +124,9 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                 <th className="px-6 py-4">Employee</th>
                 <th className="px-6 py-4">Location</th>
                 <th className="px-6 py-4">Check In</th>
+                <th className="px-6 py-4">In Loc (Lat,Lng)</th>
                 <th className="px-6 py-4">Check Out</th>
+                <th className="px-6 py-4">Out Loc (Lat,Lng)</th>
                 <th className="px-6 py-4">Status</th>
                 <th className="px-6 py-4">Distance</th>
               </tr>
@@ -132,9 +138,23 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                   <td className="px-6 py-4">{log.location.name}</td>
                   <td className="px-6 py-4">{format(new Date(log.checkInTime), "MMM d, yyyy HH:mm")}</td>
                   <td className="px-6 py-4">
+                    {log.checkInLat ? (
+                      <a href={`https://maps.google.com/?q=${log.checkInLat},${log.checkInLng}`} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline">
+                        [{log.checkInLat.toFixed(4)}, {log.checkInLng.toFixed(4)}]
+                      </a>
+                    ) : <span className="text-slate-400">-</span>}
+                  </td>
+                  <td className="px-6 py-4">
                     {log.checkOutTime 
                       ? format(new Date(log.checkOutTime), "MMM d, yyyy HH:mm") 
                       : <span className="text-slate-400 italic">Active</span>}
+                  </td>
+                  <td className="px-6 py-4">
+                    {log.checkOutLat ? (
+                      <a href={`https://maps.google.com/?q=${log.checkOutLat},${log.checkOutLng}`} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline">
+                        [{log.checkOutLat.toFixed(4)}, {log.checkOutLng.toFixed(4)}]
+                      </a>
+                    ) : <span className="text-slate-400">-</span>}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
@@ -148,7 +168,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
               ))}
               {filteredLogs.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={8} className="px-6 py-8 text-center text-slate-500">
                     No attendance logs found matching your criteria.
                   </td>
                 </tr>
