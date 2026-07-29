@@ -38,7 +38,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 sticky top-0 z-10">
+      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 pb-4 pt-10 sm:pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 sticky top-0 z-10">
         <div className="flex items-center gap-3 w-full sm:w-auto">
           <div className="w-10 h-10 flex items-center justify-center shrink-0">
             <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain" />

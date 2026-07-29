@@ -29,7 +29,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
+      <header className="bg-white border-b border-slate-200 px-6 pb-4 pt-10 sm:pt-4 flex justify-between items-center sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <Link href="/dashboard" className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors">
             <ArrowLeft className="w-5 h-5" />

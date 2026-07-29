@@ -65,7 +65,7 @@ export default async function AdminLayout({
       {/* Main Content */}
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-slate-200 p-4 flex justify-between items-center">
+        <header className="md:hidden bg-white border-b border-slate-200 px-4 pb-4 pt-10 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <Image src="/logo.png" alt="Logo" width={28} height={28} className="object-contain" />
             <h1 className="font-bold text-slate-800">Admin Portal</h1>
