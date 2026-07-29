@@ -141,6 +141,11 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
                 <span>{localIsActive ? 'Check Out' : 'Check In Now'}</span>
               )}
             </button>
+
+            <p className="mt-4 text-xs text-slate-400 flex items-center justify-center gap-1.5">
+              <MapPin className="w-3 h-3" />
+              Note: Please ensure your device's location (GPS) is turned on.
+            </p>
           </motion.div>
         </AnimatePresence>
 
