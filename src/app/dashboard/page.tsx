@@ -14,10 +14,6 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  if (session.user.role === "ADMIN") {
-    redirect("/admin");
-  }
-
   // Find today's latest log for the Check-In Card
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -61,10 +57,19 @@ export default async function DashboardPage() {
           </div>
           <div>
             <h2 className="font-semibold text-slate-800">{session.user.name}</h2>
-            <p className="text-xs text-slate-500">Employee Dashboard</p>
+            <p className="text-xs text-slate-500">
+              {session.user.role === "ADMIN" ? "Admin (Personal Dashboard)" : "Employee Dashboard"}
+            </p>
           </div>
         </div>
-        <LogoutButton />
+        <div className="flex items-center gap-4">
+          {session.user.role === "ADMIN" && (
+            <a href="/admin" className="text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 px-3 py-1.5 rounded-lg transition-colors">
+              Go to Admin Panel &rarr;
+            </a>
+          )}
+          <LogoutButton />
+        </div>
       </header>
 
       <main className="flex-1 p-6 relative">

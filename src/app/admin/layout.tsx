@@ -3,7 +3,7 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import LogoutButton from "@/components/LogoutButton";
-import { ShieldCheck, MapPin, Users, ClipboardList, LayoutDashboard } from "lucide-react";
+import { ShieldCheck, MapPin, Users, ClipboardList, LayoutDashboard, CheckSquare } from "lucide-react";
 
 export default async function AdminLayout({
   children,
@@ -19,8 +19,9 @@ export default async function AdminLayout({
   const navItems = [
     { name: "Overview", href: "/admin", icon: LayoutDashboard },
     { name: "Locations", href: "/admin/locations", icon: MapPin },
-    { name: "Employees", href: "/admin/employees", icon: Users },
+    { name: "Users", href: "/admin/employees", icon: Users },
     { name: "Attendance Logs", href: "/admin/logs", icon: ClipboardList },
+    { name: "Check In / Out", href: "/dashboard", icon: CheckSquare },
   ];
 
   return (
