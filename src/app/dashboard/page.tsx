@@ -45,14 +45,14 @@ export default async function DashboardPage() {
           <div className="flex-1 min-w-0">
             <h2 className="font-semibold text-slate-800 truncate">{session.user.name}</h2>
             <p className="text-xs text-slate-500 truncate">
-              {session.user.role === "ADMIN" ? "Admin Dashboard" : "Employee Dashboard"}
+              {session.user.role === "ADMIN" ? "Admin" : "Employee"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
           {session.user.role === "ADMIN" && (
-            <a href="/admin" className="text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 px-4 py-2 rounded-lg transition-colors whitespace-nowrap flex-1 sm:flex-none text-center">
-              Admin Panel &rarr;
+            <a href="/admin" className="text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 px-4 py-2 rounded-lg transition-colors whitespace-nowrap text-center flex-1 sm:flex-none">
+              Admin Area
             </a>
           )}
           <div className="flex-1 sm:flex-none">
