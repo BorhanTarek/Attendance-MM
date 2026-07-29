@@ -3,6 +3,7 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import AttendanceCard from "@/components/AttendanceCard";
+import HistoryCalendar from "@/components/HistoryCalendar";
 import { LogOut, User as UserIcon } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -17,7 +18,7 @@ export default async function DashboardPage() {
     redirect("/admin");
   }
 
-  // Find today's latest log
+  // Find today's latest log for the Check-In Card
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
 
@@ -38,6 +39,19 @@ export default async function DashboardPage() {
 
   const isActive = latestLog?.status === "SUCCESS" && !latestLog.checkOutTime;
 
+  // Fetch ALL logs for the user to display in the Calendar
+  const allLogs = await prisma.attendanceLog.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    include: {
+      location: true,
+    },
+    orderBy: {
+      checkInTime: "desc",
+    }
+  });
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
@@ -53,13 +67,17 @@ export default async function DashboardPage() {
         <LogoutButton />
       </header>
 
-      <main className="flex-1 p-6 flex flex-col items-center justify-center relative">
+      <main className="flex-1 p-6 relative">
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className="absolute top-[20%] left-[20%] w-[50%] h-[50%] rounded-full bg-primary-100/50 blur-3xl" />
         </div>
         
-        <div className="w-full max-w-md relative z-10">
-          <AttendanceCard isActive={isActive} latestLog={latestLog} />
+        <div className="max-w-4xl mx-auto relative z-10 space-y-8 mt-10">
+          <div className="max-w-md mx-auto">
+            <AttendanceCard isActive={isActive} latestLog={latestLog} />
+          </div>
+          
+          <HistoryCalendar logs={allLogs} />
         </div>
       </main>
     </div>
