@@ -3,8 +3,9 @@ import { authOptions } from "../../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import HistoryCalendar from "@/components/HistoryCalendar";
-import { ArrowLeft, CalendarDays } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function HistoryPage() {
   const session = await getServerSession(authOptions);
@@ -34,8 +35,8 @@ export default async function HistoryPage() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
-              <CalendarDays className="text-primary-600 w-5 h-5" />
+            <div className="w-10 h-10 flex items-center justify-center">
+              <Image src="/logo.png" alt="Logo" width={40} height={40} className="object-contain" />
             </div>
             <div>
               <h2 className="font-semibold text-slate-800">Attendance History</h2>
