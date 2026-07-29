@@ -9,6 +9,7 @@ export async function createEmployee(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const locationId = formData.get("locationId") as string;
+  const role = (formData.get("role") as string) || "EMPLOYEE";
 
   if (!name || !email || !password) {
     throw new Error("Missing required fields");
@@ -21,7 +22,7 @@ export async function createEmployee(formData: FormData) {
       name,
       email,
       passwordHash,
-      role: "EMPLOYEE",
+      role: role as any,
       assignedLocationId: locationId === "ALL" ? null : locationId,
     },
   });
@@ -34,6 +35,7 @@ export async function updateEmployee(id: string, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const locationId = formData.get("locationId") as string;
+  const role = formData.get("role") as string;
 
   if (!name || !email) {
     throw new Error("Missing required fields");
@@ -42,6 +44,7 @@ export async function updateEmployee(id: string, formData: FormData) {
   const data: any = {
     name,
     email,
+    role: role as any,
     assignedLocationId: locationId === "ALL" ? null : locationId,
   };
 

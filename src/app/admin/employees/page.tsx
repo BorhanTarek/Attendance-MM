@@ -3,7 +3,6 @@ import EmployeeClient from "./EmployeeClient";
 
 export default async function EmployeesPage() {
   const employees = await prisma.user.findMany({
-    where: { role: "EMPLOYEE" },
     include: { assignedLocation: true },
     orderBy: { createdAt: 'desc' }
   });

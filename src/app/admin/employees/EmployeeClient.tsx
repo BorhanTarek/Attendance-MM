@@ -47,12 +47,12 @@ export default function EmployeeClient({ employees, locations }: { employees: an
     <>
       <div className="flex justify-between items-start sm:items-center">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">Employees</h1>
-          <p className="text-slate-500 mt-1">Manage employee accounts and location assignments.</p>
+          <h1 className="text-3xl font-bold text-slate-800">Users</h1>
+          <p className="text-slate-500 mt-1">Manage all user accounts, roles, and branch assignments.</p>
         </div>
         <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-sm font-medium transition-colors">
           <Plus className="w-4 h-4" />
-          Add Employee
+          Add User
         </button>
       </div>
 
@@ -63,6 +63,7 @@ export default function EmployeeClient({ employees, locations }: { employees: an
               <tr>
                 <th className="px-6 py-4">Name</th>
                 <th className="px-6 py-4">Email</th>
+                <th className="px-6 py-4">Role</th>
                 <th className="px-6 py-4">Assigned Branch</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -77,6 +78,11 @@ export default function EmployeeClient({ employees, locations }: { employees: an
                     {emp.name}
                   </td>
                   <td className="px-6 py-4">{emp.email}</td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${emp.role === 'ADMIN' ? 'bg-purple-100 text-purple-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                      {emp.role}
+                    </span>
+                  </td>
                   <td className="px-6 py-4">
                     {emp.assignedLocation ? (
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -129,9 +135,16 @@ export default function EmployeeClient({ employees, locations }: { employees: an
                 <input type="password" name="password" required={!editingEmployee} placeholder={editingEmployee ? "Leave blank to keep current password" : ""} className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all" />
               </div>
               <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Role</label>
+                <select name="role" defaultValue={editingEmployee?.role || "EMPLOYEE"} className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
+                  <option value="EMPLOYEE">Employee</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Assigned Branch</label>
                 <select name="locationId" defaultValue={editingEmployee?.assignedLocationId || "ALL"} className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition-all">
-                  <option value="ALL">Any Location</option>
+                  <option value="ALL">Any Location (Admins should use this)</option>
                   {locations.map(loc => (
                     <option key={loc.id} value={loc.id}>{loc.name}</option>
                   ))}
