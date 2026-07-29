@@ -125,7 +125,7 @@ export default function LoginPage() {
         </form>
         
         <div className="mt-8 text-center text-xs text-slate-400">
-          <p>Default Admin: System Admin / admin123</p>
+          <p>Default Admin: Admin / admin123</p>
           <p>Default Employee: John Doe / employee123</p>
         </div>
       </motion.div>

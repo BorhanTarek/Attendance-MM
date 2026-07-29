@@ -10,7 +10,7 @@ async function main() {
     where: { email: 'admin@company.com' },
     update: {},
     create: {
-      name: 'System Admin',
+      name: 'Admin',
       email: 'admin@company.com',
       passwordHash: adminPassword,
       role: 'ADMIN',
