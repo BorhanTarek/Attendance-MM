@@ -37,25 +37,27 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center">
+      <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 sticky top-0 z-10">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
             <UserIcon className="text-primary-600 w-5 h-5" />
           </div>
-          <div>
-            <h2 className="font-semibold text-slate-800">{session.user.name}</h2>
-            <p className="text-xs text-slate-500">
-              {session.user.role === "ADMIN" ? "Admin (Personal Dashboard)" : "Employee Dashboard"}
+          <div className="flex-1 min-w-0">
+            <h2 className="font-semibold text-slate-800 truncate">{session.user.name}</h2>
+            <p className="text-xs text-slate-500 truncate">
+              {session.user.role === "ADMIN" ? "Admin Dashboard" : "Employee Dashboard"}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
           {session.user.role === "ADMIN" && (
-            <a href="/admin" className="text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 px-3 py-1.5 rounded-lg transition-colors">
-              Go to Admin Panel &rarr;
+            <a href="/admin" className="text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 px-4 py-2 rounded-lg transition-colors whitespace-nowrap flex-1 sm:flex-none text-center">
+              Admin Panel &rarr;
             </a>
           )}
-          <LogoutButton />
+          <div className="flex-1 sm:flex-none">
+            <LogoutButton />
+          </div>
         </div>
       </header>
 
