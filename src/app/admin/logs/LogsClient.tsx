@@ -121,54 +121,67 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-medium">
               <tr>
-                <th className="px-6 py-4">Employee</th>
-                <th className="px-6 py-4">Location</th>
-                <th className="px-6 py-4">Check In</th>
-                <th className="px-6 py-4">In Loc (Lat,Lng)</th>
-                <th className="px-6 py-4">Check Out</th>
-                <th className="px-6 py-4">Out Loc (Lat,Lng)</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Distance</th>
+                <th className="px-4 py-3">Employee</th>
+                <th className="px-4 py-3">Location</th>
+                <th className="px-4 py-3">Check In</th>
+                <th className="px-4 py-3">Check Out</th>
+                <th className="px-4 py-3">Duration</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-right">Distance</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {filteredLogs.map((log) => (
-                <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
-                  <td className="px-6 py-4 font-medium">{log.user.name}</td>
-                  <td className="px-6 py-4">{log.location.name}</td>
-                  <td className="px-6 py-4">{format(new Date(log.checkInTime), "MMM d, yyyy HH:mm")}</td>
-                  <td className="px-6 py-4">
-                    {log.checkInLat ? (
-                      <a href={`https://maps.google.com/?q=${log.checkInLat},${log.checkInLng}`} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline">
-                        [{log.checkInLat.toFixed(4)}, {log.checkInLng.toFixed(4)}]
-                      </a>
-                    ) : <span className="text-slate-400">-</span>}
-                  </td>
-                  <td className="px-6 py-4">
-                    {log.checkOutTime 
-                      ? format(new Date(log.checkOutTime), "MMM d, yyyy HH:mm") 
-                      : <span className="text-slate-400 italic">Active</span>}
-                  </td>
-                  <td className="px-6 py-4">
-                    {log.checkOutLat ? (
-                      <a href={`https://maps.google.com/?q=${log.checkOutLat},${log.checkOutLng}`} target="_blank" rel="noreferrer" className="text-primary-600 hover:underline">
-                        [{log.checkOutLat.toFixed(4)}, {log.checkOutLng.toFixed(4)}]
-                      </a>
-                    ) : <span className="text-slate-400">-</span>}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      log.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {log.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{Math.round(log.distanceMeters)}m</td>
-                </tr>
-              ))}
+              {filteredLogs.map((log) => {
+                let duration = "-";
+                if (log.checkOutTime) {
+                  const diffMs = new Date(log.checkOutTime).getTime() - new Date(log.checkInTime).getTime();
+                  const diffMins = Math.round(diffMs / 60000);
+                  const hours = Math.floor(diffMins / 60);
+                  const mins = diffMins % 60;
+                  duration = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+                }
+
+                return (
+                  <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-4 py-3 font-medium">{log.user.name}</td>
+                    <td className="px-4 py-3 truncate max-w-[120px]" title={log.location.name}>{log.location.name}</td>
+                    <td className="px-4 py-3">
+                      <div className="whitespace-nowrap">{format(new Date(log.checkInTime), "MMM d, HH:mm")}</div>
+                      {log.checkInLat && (
+                        <a href={`https://maps.google.com/?q=${log.checkInLat},${log.checkInLng}`} target="_blank" rel="noreferrer" className="text-xs text-primary-600 hover:underline block mt-0.5">
+                          Map ↗
+                        </a>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {log.checkOutTime ? (
+                        <>
+                          <div className="whitespace-nowrap">{format(new Date(log.checkOutTime), "MMM d, HH:mm")}</div>
+                          {log.checkOutLat && (
+                            <a href={`https://maps.google.com/?q=${log.checkOutLat},${log.checkOutLng}`} target="_blank" rel="noreferrer" className="text-xs text-primary-600 hover:underline block mt-0.5">
+                              Map ↗
+                            </a>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-slate-400 italic">Active</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-slate-600">{duration}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                        log.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                      }`}>
+                        {log.status === 'OUT_OF_BOUNDS' ? 'OOB' : log.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right">{Math.round(log.distanceMeters)}m</td>
+                  </tr>
+                );
+              })}
               {filteredLogs.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-500">
                     No attendance logs found matching your criteria.
                   </td>
                 </tr>
