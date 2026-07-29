@@ -6,12 +6,29 @@ import { format } from "date-fns";
 
 export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+  const [filterTeam, setFilterTeam] = useState("");
   const [logs, setLogs] = useState(initialLogs);
 
-  const filteredLogs = logs.filter(log => 
-    log.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    log.location.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Extract unique locations for the team/location filter dropdown
+  const uniqueTeams = Array.from(new Set(initialLogs.map(log => log.location.name))).sort();
+
+  const filteredLogs = logs.filter(log => {
+    // 1. Search text (Employee name)
+    const matchesSearch = log.user.name.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // 2. Team (Location)
+    const matchesTeam = filterTeam ? log.location.name === filterTeam : true;
+    
+    // 3. Date
+    let matchesDate = true;
+    if (filterDate) {
+      const logDate = format(new Date(log.checkInTime), "yyyy-MM-dd");
+      matchesDate = logDate === filterDate;
+    }
+    
+    return matchesSearch && matchesTeam && matchesDate;
+  });
 
   const exportCSV = () => {
     const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Status", "Distance (m)"];
@@ -47,22 +64,48 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="relative max-w-md w-full">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-slate-400" />
+        
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto flex-1">
+          {/* Text Search */}
+          <div className="relative max-w-xs w-full">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-slate-400" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search employee..."
+              className="w-full pl-10 pr-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <input
-            type="text"
-            placeholder="Search employee or location..."
-            className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+
+          {/* Team / Location Filter */}
+          <select 
+            className="px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-700 w-full sm:w-auto"
+            value={filterTeam}
+            onChange={(e) => setFilterTeam(e.target.value)}
+          >
+            <option value="">All Teams/Branches</option>
+            {uniqueTeams.map((team: any) => (
+              <option key={team} value={team}>{team}</option>
+            ))}
+          </select>
+
+          {/* Date Filter */}
+          <div className="relative w-full sm:w-auto">
+            <input
+              type="date"
+              className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none bg-white text-slate-700"
+              value={filterDate}
+              onChange={(e) => setFilterDate(e.target.value)}
+            />
+          </div>
         </div>
 
         <button
           onClick={exportCSV}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg shadow-sm font-medium transition-colors"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg shadow-sm font-medium transition-colors w-full sm:w-auto shrink-0"
         >
           <Download className="w-4 h-4" />
           Export CSV
