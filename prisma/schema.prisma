@@ -20,6 +20,7 @@ model User {
   assignedLocation   Location?       @relation(fields: [assignedLocationId], references: [id])
   
   attendanceLogs     AttendanceLog[]
+  schedules          Schedule[]
 }
 
 model Location {
@@ -46,4 +47,18 @@ model AttendanceLog {
   
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   location       Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  userId    String
+  date      DateTime // e.g. 2026-07-29T00:00:00.000Z
+  startTime String   // e.g. "09:00"
+  endTime   String   // e.g. "17:00"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
 }
