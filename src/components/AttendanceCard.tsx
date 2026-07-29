@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MapPin, Loader2, CheckCircle2, XCircle, Clock } from "lucide-react";
+import { MapPin, Loader2, CheckCircle2, XCircle, Clock, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function AttendanceCard({ isActive, latestLog }: { isActive: boolean, latestLog: any }) {
@@ -103,7 +103,7 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
             className="flex flex-col items-center w-full"
           >
             <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 transition-colors duration-500 ${localIsActive ? 'bg-emerald-500 text-white' : 'bg-primary-600 text-white'}`}>
-              <MapPin className="w-10 h-10" />
+              {localIsActive ? <LogOut className="w-10 h-10 ml-2" /> : <MapPin className="w-10 h-10" />}
             </div>
 
             <h3 className="text-2xl font-bold text-slate-800 mb-2">
