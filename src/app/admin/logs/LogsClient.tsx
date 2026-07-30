@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Search, Camera, ShieldCheck, ShieldX, X } from "lucide-react";
+import { Download, Search, Camera, X } from "lucide-react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,7 +27,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
   });
 
   const exportCSV = () => {
-    const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Device", "Duration", "Biometric Verified", "Has Photo", "Status", "Distance (m)"];
+    const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Device", "Duration", "Has Photo", "Status", "Distance (m)"];
     
     const csvContent = [
       headers.join(","),
@@ -53,7 +53,6 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
           checkOut,
           `"${device}"`,
           `"${duration}"`,
-          log.biometricVerified ? "Yes" : "No",
           (log.checkInPhoto || log.checkOutPhoto) ? "Yes" : "No",
           log.status,
           distance,
@@ -133,7 +132,6 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                 <th className="px-4 py-3">Check Out</th>
                 <th className="px-4 py-3">Device</th>
                 <th className="px-4 py-3">Duration</th>
-                <th className="px-4 py-3 text-center">Verified</th>
                 <th className="px-4 py-3 text-center">Photo</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Distance</th>
@@ -185,13 +183,6 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-500 max-w-[150px] truncate" title={deviceDisplay}>{deviceDisplay}</td>
                     <td className="px-4 py-3 font-medium text-slate-600">{duration}</td>
-                    <td className="px-4 py-3 text-center">
-                      {log.biometricVerified ? (
-                        <ShieldCheck className="w-5 h-5 text-emerald-600 mx-auto" />
-                      ) : (
-                        <ShieldX className="w-5 h-5 text-slate-300 mx-auto" />
-                      )}
-                    </td>
                     <td className="px-4 py-3 text-center">
                       {hasPhoto ? (
                         <button

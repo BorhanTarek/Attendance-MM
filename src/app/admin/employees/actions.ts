@@ -71,7 +71,6 @@ export async function resetDevice(id: string) {
   await prisma.user.update({
     where: { id },
     data: {
-      biometricRegistered: false,
       registeredDeviceId: null,
     },
   });

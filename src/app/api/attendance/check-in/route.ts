@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { latitude, longitude, biometricVerified, photo, deviceId } = body;
+    const { latitude, longitude, photo, deviceId } = body;
 
     if (typeof latitude !== 'number' || typeof longitude !== 'number') {
       return NextResponse.json({ error: "Invalid coordinates provided" }, { status: 400 });
@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     }
 
     // Device binding validation
-    if (user.biometricRegistered) {
+    if (user.registeredDeviceId) {
       if (!deviceId || deviceId !== user.registeredDeviceId) {
         return NextResponse.json({ 
           error: "Unauthorized device. Please use your registered phone to check in." 
@@ -81,7 +81,6 @@ export async function POST(req: Request) {
         checkInLat: latitude,
         checkInLng: longitude,
         checkInDevice,
-        biometricVerified: biometricVerified === true,
         checkInPhoto: photo || null,
       }
     });

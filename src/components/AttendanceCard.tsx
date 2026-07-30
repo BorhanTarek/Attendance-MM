@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Loader2, CheckCircle2, XCircle, Clock, LogOut, Fingerprint, Camera } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { verifyBiometric } from "@/lib/biometric";
 import PhotoCaptureModal from "./PhotoCaptureModal";
 
 export default function AttendanceCard({ isActive, latestLog }: { isActive: boolean, latestLog: any }) {
@@ -18,11 +17,7 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
 
   // Photo capture state
   const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [pendingAction, setPendingAction] = useState<{
-    latitude: number;
-    longitude: number;
-    biometricVerified: boolean;
-  } | null>(null);
+  const [pendingAction, setPendingAction] = useState<{latitude: number, longitude: number} | null>(null);
 
   // Sync with server state if it changes externally
   useEffect(() => {
@@ -30,10 +25,30 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
     setLocalLog(latestLog);
   }, [isActive, latestLog]);
 
+  // Silent device registration on mount
+  useEffect(() => {
+    const checkAndRegisterDevice = async () => {
+      let deviceId = localStorage.getItem("geoattend_device_id");
+      if (!deviceId) {
+        deviceId = crypto.randomUUID();
+        localStorage.setItem("geoattend_device_id", deviceId);
+        try {
+          await fetch("/api/biometric/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ deviceId }),
+          });
+        } catch (e) {
+          console.error("Failed to register device silently", e);
+        }
+      }
+    };
+    checkAndRegisterDevice();
+  }, []);
+
   const submitAttendance = async (
     latitude: number, 
     longitude: number, 
-    biometricVerified: boolean, 
     photo?: string
   ) => {
     const endpoint = localIsActive ? '/api/attendance/check-out' : '/api/attendance/check-in';
@@ -43,7 +58,7 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ latitude, longitude, biometricVerified, photo, deviceId })
+        body: JSON.stringify({ latitude, longitude, photo, deviceId })
       });
       const data = await res.json();
 
@@ -77,33 +92,24 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
       return;
     }
 
-    // Step 1: Biometric verification
-    setStatus({ type: 'info', message: 'Verifying identity...' });
-    const biometricVerified = await verifyBiometric();
-    
-    if (!biometricVerified) {
-      setStatus({ type: 'info', message: 'Biometric unavailable — proceeding without verification.' });
-      await new Promise(r => setTimeout(r, 1000));
-    }
-
-    // Step 2: Get location
+    // Get location
     setStatus({ type: 'info', message: 'Acquiring location...' });
     
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
 
-        // Step 3: Random photo check (~30% chance)
+        // Random photo check (~30% chance)
         const shouldTakePhoto = Math.random() < 0.3;
         
         if (shouldTakePhoto) {
           // Store pending data and show photo modal
-          setPendingAction({ latitude, longitude, biometricVerified });
+          setPendingAction({ latitude, longitude });
           setShowPhotoModal(true);
           setStatus({ type: 'info', message: 'Photo verification required...' });
         } else {
           // No photo needed — submit directly
-          await submitAttendance(latitude, longitude, biometricVerified);
+          await submitAttendance(latitude, longitude);
         }
       },
       (error) => {
@@ -120,7 +126,6 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
       await submitAttendance(
         pendingAction.latitude, 
         pendingAction.longitude, 
-        pendingAction.biometricVerified, 
         photoBase64
       );
       setPendingAction(null);
@@ -132,8 +137,7 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
     if (pendingAction) {
       await submitAttendance(
         pendingAction.latitude, 
-        pendingAction.longitude, 
-        pendingAction.biometricVerified
+        pendingAction.longitude
       );
       setPendingAction(null);
     }
@@ -211,8 +215,8 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
               </button>
 
               <p className="mt-4 text-xs text-slate-400 flex items-center justify-center gap-1.5">
-                <Fingerprint className="w-3 h-3" />
-                Biometric verification &bull; GPS location required
+                <MapPin className="w-3 h-3" />
+                Device locking &bull; GPS location required
               </p>
             </motion.div>
           </AnimatePresence>

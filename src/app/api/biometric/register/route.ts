@@ -20,12 +20,11 @@ export async function POST(req: Request) {
     await prisma.user.update({
       where: { id: session.user.id },
       data: { 
-        biometricRegistered: true,
         registeredDeviceId: deviceId
       },
     });
 
-    return NextResponse.json({ success: true, message: "Biometric registered successfully!" });
+    return NextResponse.json({ success: true, message: "Device registered successfully!" });
   } catch (error) {
     console.error("Biometric registration error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

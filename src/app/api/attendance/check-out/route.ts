@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { biometricRegistered: true, registeredDeviceId: true },
+      select: { registeredDeviceId: true },
     });
 
     if (!user) {
@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     }
 
     // Device binding validation
-    if (user.biometricRegistered) {
+    if (user.registeredDeviceId) {
       if (!deviceId || deviceId !== user.registeredDeviceId) {
         return NextResponse.json({ 
           error: "Unauthorized device. Please use your registered phone to check out." 
@@ -59,7 +59,6 @@ export async function POST(req: Request) {
     // Update the log with check-out time
     const userAgent = req.headers.get("user-agent");
     const checkOutDevice = parseDevice(userAgent);
-    const biometricVerified = body.biometricVerified === true;
     const photo = body.photo || null;
 
     await prisma.attendanceLog.update({
@@ -69,7 +68,6 @@ export async function POST(req: Request) {
         checkOutLat: latitude,
         checkOutLng: longitude,
         checkOutDevice,
-        biometricVerified: latestLog.biometricVerified && biometricVerified,
         checkOutPhoto: photo,
       },
     });

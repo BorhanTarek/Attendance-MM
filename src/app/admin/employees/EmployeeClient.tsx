@@ -102,8 +102,8 @@ export default function EmployeeClient({ employees, locations }: { employees: an
                     )}
                   </td>
                   <td className="px-6 py-4 text-right space-x-3">
-                    {emp.biometricRegistered && (
-                      <button onClick={() => handleResetDevice(emp.id)} className="text-amber-600 hover:text-amber-800 font-medium inline-flex items-center gap-1" title="Reset registered biometric device">
+                    {emp.registeredDeviceId && (
+                      <button onClick={() => handleResetDevice(emp.id)} className="text-amber-600 hover:text-amber-800 font-medium inline-flex items-center gap-1" title="Reset registered device">
                         <Smartphone className="w-3 h-3" /> Reset Device
                       </button>
                     )}
