@@ -8,19 +8,20 @@ datasource db {
 }
 
 model User {
-  id                 String          @id @default(cuid())
-  name               String
-  email              String          @unique
-  passwordHash       String
-  role               String          @default("EMPLOYEE") // "ADMIN" or "EMPLOYEE"
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
+  id                  String          @id @default(cuid())
+  name                String
+  email               String          @unique
+  passwordHash        String
+  role                String          @default("EMPLOYEE") // "ADMIN" or "EMPLOYEE"
+  biometricRegistered Boolean         @default(false)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
   
-  assignedLocationId String?
-  assignedLocation   Location?       @relation(fields: [assignedLocationId], references: [id])
+  assignedLocationId  String?
+  assignedLocation    Location?       @relation(fields: [assignedLocationId], references: [id])
   
-  attendanceLogs     AttendanceLog[]
-  schedules          Schedule[]
+  attendanceLogs      AttendanceLog[]
+  schedules           Schedule[]
 }
 
 model Location {

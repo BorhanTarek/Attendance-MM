@@ -3,6 +3,7 @@ import { authOptions } from "../api/auth/[...nextauth]/route";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import AttendanceCard from "@/components/AttendanceCard";
+import BiometricSetup from "@/components/BiometricSetup";
 import { CalendarDays, ArrowRight } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import Link from "next/link";
@@ -14,6 +15,12 @@ export default async function DashboardPage() {
   if (!session) {
     redirect("/login");
   }
+
+  // Get user biometric status
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { biometricRegistered: true },
+  });
 
   // Find today's latest log for the Check-In Card
   const startOfDay = new Date();
@@ -35,6 +42,7 @@ export default async function DashboardPage() {
   });
 
   const isActive = latestLog?.status === "SUCCESS" && !latestLog.checkOutTime;
+  const needsBiometricSetup = !user?.biometricRegistered;
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -84,6 +92,10 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </main>
+
+      {/* Biometric Setup Modal - shows on first login */}
+      {needsBiometricSetup && <BiometricSetup />}
     </div>
   );
 }
+
