@@ -1,24 +1,79 @@
 /**
- * Biometric verification using Web Authentication API.
- * Triggers the device's built-in biometric (fingerprint, face ID, Windows Hello).
- * Returns true if verified, false if unavailable or denied.
+ * Biometric verification - uses native Android bridge when in WebView,
+ * falls back to WebAuthn for browsers.
  */
+
+declare global {
+  interface Window {
+    AndroidBiometric?: {
+      isAvailable(): boolean;
+      authenticate(): void;
+    };
+  }
+}
+
 export async function verifyBiometric(): Promise<boolean> {
+  // Try native Android bridge first (for WebView app)
+  if (window.AndroidBiometric) {
+    return verifyNativeAndroid();
+  }
+
+  // Fall back to WebAuthn for browsers
+  return verifyWebAuthn();
+}
+
+/**
+ * Native Android biometric via JavaScript interface
+ */
+function verifyNativeAndroid(): Promise<boolean> {
+  return new Promise((resolve) => {
+    try {
+      if (!window.AndroidBiometric?.isAvailable()) {
+        console.log("Android biometric not available");
+        resolve(false);
+        return;
+      }
+
+      // Listen for the result event from native code
+      const handler = (event: Event) => {
+        const customEvent = event as CustomEvent;
+        window.removeEventListener("biometricResult", handler);
+        resolve(customEvent.detail?.success === true);
+      };
+
+      window.addEventListener("biometricResult", handler);
+
+      // Set a timeout in case native never responds
+      setTimeout(() => {
+        window.removeEventListener("biometricResult", handler);
+        resolve(false);
+      }, 60000);
+
+      // Trigger native biometric prompt
+      window.AndroidBiometric!.authenticate();
+    } catch (error) {
+      console.log("Native biometric error:", error);
+      resolve(false);
+    }
+  });
+}
+
+/**
+ * WebAuthn-based biometric for desktop/browser
+ */
+async function verifyWebAuthn(): Promise<boolean> {
   try {
-    // Check if WebAuthn is available
     if (!window.PublicKeyCredential) {
       console.log("WebAuthn not supported");
       return false;
     }
 
-    // Check if platform authenticator (biometric) is available
     const available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
     if (!available) {
       console.log("Platform authenticator not available");
       return false;
     }
 
-    // Create a simple challenge for biometric verification
     const challenge = new Uint8Array(32);
     crypto.getRandomValues(challenge);
 
@@ -35,8 +90,8 @@ export async function verifyBiometric(): Promise<boolean> {
           displayName: "Attendance Verification",
         },
         pubKeyCredParams: [
-          { alg: -7, type: "public-key" },   // ES256
-          { alg: -257, type: "public-key" },  // RS256
+          { alg: -7, type: "public-key" },
+          { alg: -257, type: "public-key" },
         ],
         authenticatorSelection: {
           authenticatorAttachment: "platform",
@@ -48,39 +103,25 @@ export async function verifyBiometric(): Promise<boolean> {
 
     return credential !== null;
   } catch (error: any) {
-    // User cancelled or biometric failed
-    if (error.name === "NotAllowedError") {
-      console.log("User cancelled biometric verification");
-    } else if (error.name === "InvalidStateError") {
-      // Credential already exists, try to verify with get() instead
+    if (error.name === "InvalidStateError") {
       try {
-        return await verifyWithGet();
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+
+        const assertion = await navigator.credentials.get({
+          publicKey: {
+            challenge,
+            rpId: window.location.hostname,
+            userVerification: "required",
+            timeout: 60000,
+          },
+        });
+        return assertion !== null;
       } catch {
         return false;
       }
-    } else {
-      console.log("Biometric error:", error.message);
     }
-    return false;
-  }
-}
-
-async function verifyWithGet(): Promise<boolean> {
-  try {
-    const challenge = new Uint8Array(32);
-    crypto.getRandomValues(challenge);
-
-    const assertion = await navigator.credentials.get({
-      publicKey: {
-        challenge,
-        rpId: window.location.hostname,
-        userVerification: "required",
-        timeout: 60000,
-      },
-    });
-
-    return assertion !== null;
-  } catch {
+    console.log("WebAuthn error:", error.message);
     return false;
   }
 }
