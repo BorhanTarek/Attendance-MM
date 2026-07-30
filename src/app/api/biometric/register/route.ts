@@ -11,9 +11,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { deviceId } = await req.json();
+
+    if (!deviceId) {
+      return NextResponse.json({ error: "Device ID is required" }, { status: 400 });
+    }
+
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { biometricRegistered: true },
+      data: { 
+        biometricRegistered: true,
+        registeredDeviceId: deviceId
+      },
     });
 
     return NextResponse.json({ success: true, message: "Biometric registered successfully!" });

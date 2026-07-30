@@ -37,12 +37,13 @@ export default function AttendanceCard({ isActive, latestLog }: { isActive: bool
     photo?: string
   ) => {
     const endpoint = localIsActive ? '/api/attendance/check-out' : '/api/attendance/check-in';
+    const deviceId = localStorage.getItem("geoattend_device_id");
     
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ latitude, longitude, biometricVerified, photo })
+        body: JSON.stringify({ latitude, longitude, biometricVerified, photo, deviceId })
       });
       const data = await res.json();
 

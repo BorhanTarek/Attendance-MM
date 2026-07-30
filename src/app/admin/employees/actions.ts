@@ -66,3 +66,14 @@ export async function deleteEmployee(id: string) {
   });
   revalidatePath("/admin/employees");
 }
+
+export async function resetDevice(id: string) {
+  await prisma.user.update({
+    where: { id },
+    data: {
+      biometricRegistered: false,
+      registeredDeviceId: null,
+    },
+  });
+  revalidatePath("/admin/employees");
+}

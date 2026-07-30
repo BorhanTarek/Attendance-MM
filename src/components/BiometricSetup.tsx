@@ -17,9 +17,17 @@ export default function BiometricSetup() {
     const verified = await verifyBiometric();
     
     if (verified) {
-      // Mark as registered on the server
+      // Mark as registered on the server and bind device
       try {
-        await fetch("/api/biometric/register", { method: "POST" });
+        const deviceId = crypto.randomUUID();
+        localStorage.setItem("geoattend_device_id", deviceId);
+        
+        await fetch("/api/biometric/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deviceId }),
+        });
+        
         setStep("success");
         setTimeout(() => router.refresh(), 2000);
       } catch {

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Users, X, Trash2, Edit2 } from "lucide-react";
-import { createEmployee, updateEmployee, deleteEmployee } from "./actions";
+import { Plus, Users, X, Trash2, Edit2, Smartphone } from "lucide-react";
+import { createEmployee, updateEmployee, deleteEmployee, resetDevice } from "./actions";
 
 export default function EmployeeClient({ employees, locations }: { employees: any[], locations: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,6 +22,13 @@ export default function EmployeeClient({ employees, locations }: { employees: an
   async function handleDelete(id: string) {
     if (confirm("Are you sure you want to delete this employee?")) {
       await deleteEmployee(id);
+    }
+  }
+
+  async function handleResetDevice(id: string) {
+    if (confirm("Are you sure you want to reset the registered device for this employee? They will need to register their biometric again on their new device.")) {
+      await resetDevice(id);
+      alert("Device reset successfully.");
     }
   }
 
@@ -95,6 +102,11 @@ export default function EmployeeClient({ employees, locations }: { employees: an
                     )}
                   </td>
                   <td className="px-6 py-4 text-right space-x-3">
+                    {emp.biometricRegistered && (
+                      <button onClick={() => handleResetDevice(emp.id)} className="text-amber-600 hover:text-amber-800 font-medium inline-flex items-center gap-1" title="Reset registered biometric device">
+                        <Smartphone className="w-3 h-3" /> Reset Device
+                      </button>
+                    )}
                     <button onClick={() => openEdit(emp)} className="text-primary-600 hover:text-primary-800 font-medium inline-flex items-center gap-1">
                       <Edit2 className="w-3 h-3" /> Edit
                     </button>

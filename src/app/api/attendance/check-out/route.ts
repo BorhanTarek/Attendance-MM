@@ -14,6 +14,25 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const latitude = typeof body.latitude === 'number' ? body.latitude : null;
     const longitude = typeof body.longitude === 'number' ? body.longitude : null;
+    const deviceId = body.deviceId;
+
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { biometricRegistered: true, registeredDeviceId: true },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    // Device binding validation
+    if (user.biometricRegistered) {
+      if (!deviceId || deviceId !== user.registeredDeviceId) {
+        return NextResponse.json({ 
+          error: "Unauthorized device. Please use your registered phone to check out." 
+        }, { status: 403 });
+      }
+    }
 
     // Find the latest successful check-in without a check-out time for today
     const startOfDay = new Date();
