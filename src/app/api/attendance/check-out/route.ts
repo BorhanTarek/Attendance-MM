@@ -40,6 +40,8 @@ export async function POST(req: Request) {
     // Update the log with check-out time
     const userAgent = req.headers.get("user-agent");
     const checkOutDevice = parseDevice(userAgent);
+    const biometricVerified = body.biometricVerified === true;
+    const photo = body.photo || null;
 
     await prisma.attendanceLog.update({
       where: { id: latestLog.id },
@@ -48,6 +50,8 @@ export async function POST(req: Request) {
         checkOutLat: latitude,
         checkOutLng: longitude,
         checkOutDevice,
+        biometricVerified: latestLog.biometricVerified && biometricVerified,
+        checkOutPhoto: photo,
       },
     });
 

@@ -37,22 +37,25 @@ model Location {
 }
 
 model AttendanceLog {
-  id             String    @id @default(cuid())
-  userId         String
-  locationId     String
-  checkInTime    DateTime  @default(now())
-  checkOutTime   DateTime?
-  checkInLat     Float?
-  checkInLng     Float?
-  checkOutLat    Float?
-  checkOutLng    Float?
-  checkInDevice  String?
-  checkOutDevice String?
-  distanceMeters Float
-  status         String    // "SUCCESS", "OUT_OF_BOUNDS"
+  id               String    @id @default(cuid())
+  userId           String
+  locationId       String
+  checkInTime      DateTime  @default(now())
+  checkOutTime     DateTime?
+  checkInLat       Float?
+  checkInLng       Float?
+  checkOutLat      Float?
+  checkOutLng      Float?
+  checkInDevice    String?
+  checkOutDevice   String?
+  biometricVerified Boolean  @default(false)
+  checkInPhoto     String?   @db.Text
+  checkOutPhoto    String?   @db.Text
+  distanceMeters   Float
+  status           String    // "SUCCESS", "OUT_OF_BOUNDS"
   
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  location       Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location         Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
 }
 
 model Schedule {

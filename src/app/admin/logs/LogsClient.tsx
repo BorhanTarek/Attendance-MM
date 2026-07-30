@@ -1,37 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Search, Calendar as CalendarIcon } from "lucide-react";
+import { Download, Search, Camera, ShieldCheck, ShieldX, X } from "lucide-react";
 import { format } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterTeam, setFilterTeam] = useState("");
   const [logs, setLogs] = useState(initialLogs);
+  const [photoModal, setPhotoModal] = useState<{ checkIn?: string; checkOut?: string; name: string } | null>(null);
 
   // Extract unique locations for the team/location filter dropdown
   const uniqueTeams = Array.from(new Set(initialLogs.map(log => log.location.name))).sort();
 
   const filteredLogs = logs.filter(log => {
-    // 1. Search text (Employee name)
     const matchesSearch = log.user.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // 2. Team (Location)
     const matchesTeam = filterTeam ? log.location.name === filterTeam : true;
-    
-    // 3. Date
     let matchesDate = true;
     if (filterDate) {
       const logDate = format(new Date(log.checkInTime), "yyyy-MM-dd");
       matchesDate = logDate === filterDate;
     }
-    
     return matchesSearch && matchesTeam && matchesDate;
   });
 
   const exportCSV = () => {
-    const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Status", "Distance (m)", "Check In Lat", "Check In Lng", "Check Out Lat", "Check Out Lng"];
+    const headers = ["Employee Name", "Location", "Check In Time", "Check Out Time", "Device", "Duration", "Biometric Verified", "Has Photo", "Status", "Distance (m)"];
     
     const csvContent = [
       headers.join(","),
@@ -39,18 +35,28 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
         const checkIn = format(new Date(log.checkInTime), "yyyy-MM-dd HH:mm:ss");
         const checkOut = log.checkOutTime ? format(new Date(log.checkOutTime), "yyyy-MM-dd HH:mm:ss") : "N/A";
         const distance = Math.round(log.distanceMeters);
+        const device = log.checkInDevice || "Unknown";
         
+        let duration = "-";
+        if (log.checkOutTime) {
+          const diffMs = new Date(log.checkOutTime).getTime() - new Date(log.checkInTime).getTime();
+          const diffMins = Math.round(diffMs / 60000);
+          const hours = Math.floor(diffMins / 60);
+          const mins = diffMins % 60;
+          duration = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+        }
+
         return [
           `"${log.user.name}"`,
           `"${log.location.name}"`,
           checkIn,
           checkOut,
+          `"${device}"`,
+          `"${duration}"`,
+          log.biometricVerified ? "Yes" : "No",
+          (log.checkInPhoto || log.checkOutPhoto) ? "Yes" : "No",
           log.status,
           distance,
-          log.checkInLat || "",
-          log.checkInLng || "",
-          log.checkOutLat || "",
-          log.checkOutLng || ""
         ].join(",");
       })
     ].join("\n");
@@ -127,6 +133,8 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                 <th className="px-4 py-3">Check Out</th>
                 <th className="px-4 py-3">Device</th>
                 <th className="px-4 py-3">Duration</th>
+                <th className="px-4 py-3 text-center">Verified</th>
+                <th className="px-4 py-3 text-center">Photo</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Distance</th>
               </tr>
@@ -142,11 +150,12 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                   duration = hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
                 }
 
-                // Determine what to show in Device column
                 let deviceDisplay = log.checkInDevice || "-";
                 if (log.checkOutDevice && log.checkOutDevice !== log.checkInDevice) {
                   deviceDisplay = `In: ${log.checkInDevice} / Out: ${log.checkOutDevice}`;
                 }
+
+                const hasPhoto = log.checkInPhoto || log.checkOutPhoto;
 
                 return (
                   <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
@@ -176,6 +185,25 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
                     </td>
                     <td className="px-4 py-3 text-xs text-slate-500 max-w-[150px] truncate" title={deviceDisplay}>{deviceDisplay}</td>
                     <td className="px-4 py-3 font-medium text-slate-600">{duration}</td>
+                    <td className="px-4 py-3 text-center">
+                      {log.biometricVerified ? (
+                        <ShieldCheck className="w-5 h-5 text-emerald-600 mx-auto" />
+                      ) : (
+                        <ShieldX className="w-5 h-5 text-slate-300 mx-auto" />
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      {hasPhoto ? (
+                        <button
+                          onClick={() => setPhotoModal({ checkIn: log.checkInPhoto, checkOut: log.checkOutPhoto, name: log.user.name })}
+                          className="text-primary-600 hover:text-primary-700 transition-colors mx-auto block"
+                        >
+                          <Camera className="w-5 h-5" />
+                        </button>
+                      ) : (
+                        <span className="text-slate-300">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         log.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
@@ -189,7 +217,7 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
               })}
               {filteredLogs.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                  <td colSpan={10} className="px-4 py-8 text-center text-slate-500">
                     No attendance logs found matching your criteria.
                   </td>
                 </tr>
@@ -198,6 +226,53 @@ export default function LogsClient({ initialLogs }: { initialLogs: any[] }) {
           </table>
         </div>
       </div>
+
+      {/* Photo Viewer Modal */}
+      <AnimatePresence>
+        {photoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setPhotoModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-2xl shadow-2xl overflow-hidden max-w-lg w-full"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 className="font-semibold text-slate-800">
+                  📷 Photos — {photoModal.name}
+                </h3>
+                <button onClick={() => setPhotoModal(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="p-5 space-y-4">
+                {photoModal.checkIn && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 mb-2 uppercase tracking-wider">Check-In Photo</p>
+                    <img src={photoModal.checkIn} alt="Check-in" className="rounded-lg border border-slate-200 w-full" />
+                  </div>
+                )}
+                {photoModal.checkOut && (
+                  <div>
+                    <p className="text-xs font-medium text-slate-500 mb-2 uppercase tracking-wider">Check-Out Photo</p>
+                    <img src={photoModal.checkOut} alt="Check-out" className="rounded-lg border border-slate-200 w-full" />
+                  </div>
+                )}
+                {!photoModal.checkIn && !photoModal.checkOut && (
+                  <p className="text-slate-400 text-center py-8">No photos available.</p>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { latitude, longitude } = body;
+    const { latitude, longitude, biometricVerified, photo } = body;
 
     if (typeof latitude !== 'number' || typeof longitude !== 'number') {
       return NextResponse.json({ error: "Invalid coordinates provided" }, { status: 400 });
@@ -72,6 +72,8 @@ export async function POST(req: Request) {
         checkInLat: latitude,
         checkInLng: longitude,
         checkInDevice,
+        biometricVerified: biometricVerified === true,
+        checkInPhoto: photo || null,
       }
     });
 
